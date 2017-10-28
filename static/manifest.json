@@ -1,6 +1,6 @@
 {
-  "name": "umbrella-pwa",
-  "short_name": "umbrella",
+  "name": "Grab an Umbrella",
+  "short_name": "Umbrella",
   "icons": [
     {
       "src": "img/icons/android-chrome-192x192.png",

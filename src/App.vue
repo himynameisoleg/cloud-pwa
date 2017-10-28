@@ -1,120 +1,101 @@
 <template>
   <v-app light>
-    <v-navigation-drawer
-      persistent
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      v-model="drawer"
-      enable-resize-watcher
-      app
-    >
-      <v-list>
-        <v-list-tile
-          value="true"
-          v-for="(item, i) in items"
-          :key="i"
-        >
-          <v-list-tile-action>
-            <v-icon light v-html="item.icon"></v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
-    <v-toolbar fixed app :clipped-left="clipped">
-      <v-toolbar-side-icon @click.stop="drawer = !drawer" light></v-toolbar-side-icon>
-      <!-- <v-btn
-        icon
-        light
-        @click.stop="miniVariant = !miniVariant"
-      >
-        <v-icon v-html="miniVariant ? 'chevron_right' : 'chevron_left'"></v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        light
-        @click.stop="clipped = !clipped"
-      >
-        <v-icon>web</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        light
-        @click.stop="fixed = !fixed"
-      >
-        <v-icon>remove</v-icon>
-      </v-btn> -->
-      <v-toolbar-title v-text="title"></v-toolbar-title>
-      <v-spacer></v-spacer>
-      <!-- <v-btn
-        icon
-        light
-        @click.stop="rightDrawer = !rightDrawer"
-      >
-        <v-icon>menu</v-icon>
-      </v-btn> -->
-    </v-toolbar>
-    <main>
-      <v-content>
-        <v-container fluid class="pa-0">
-          <v-layout row wrap>
-            <v-flex xs12 sm6>
-              <div class="text-xs-center">
-                <v-card flat>
-                  <v-card-text>
-                    <div>
-                      <v-btn color="primary" fab medium dark>
-                        <v-icon>filter_drama</v-icon>
-                      </v-btn>
-                    </div>
-                  </v-card-text>
-                </v-card>
-              </div>
-            </v-flex>
-          </v-layout>
-        </v-container>
-      </v-content>
-    </main>
-    <v-navigation-drawer
-      temporary
-      :right="right"
-      v-model="rightDrawer"
-      app
-    >
-      <v-list>
-        <v-list-tile @click="right = !right">
-          <v-list-tile-action>
-            <v-icon light>compare_arrows</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-title>Switch drawer (click me)</v-list-tile-title>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
-    <v-footer :fixed="fixed" app>
-      <span>&copy; 2017</span>
-    </v-footer>
+    <v-container grid-list-xl text-xs-center>
+      <v-layout row>
+        <v-flex xs4 offset-xs4>
+          <v-btn  color="blue" fab dark large top center @click="getWeather()">
+            <v-icon>cloud_queue</v-icon>
+          </v-btn>
+        </v-flex>
+      </v-layout>
+      <v-layout v-show="descriptionVisible" row>
+        <v-flex sm6 offset-sm3 xs12>
+          <v-card dark tile flat color="error">
+            <v-card-text>{{ description }}</v-card-text>
+          </v-card>
+        </v-flex>
+      </v-layout>
+      <v-layout v-show="umbrellaVisible" row>
+        <v-flex sm6 offset-sm3 xs12>
+          <v-card dark tile flat :color="tileColor">
+            <v-card-text>{{ umbrella }}</v-card-text>
+          </v-card>
+        </v-flex>
+      </v-layout>
+    </v-container>
+    <v-layout row>
+      <v-flex xs12>
+        <v-footer class="pa-3" absolute bottom>
+          <v-spacer></v-spacer>
+          <div>© {{ new Date().getFullYear() }}</div>
+        </v-footer>
+      </v-flex>
+    </v-layout>
   </v-app>
 </template>
 
 <script>
-  export default {
-    data () {
-      return {
-        clipped: false,
-        drawer: true,
-        fixed: false,
-        items: [
-          { icon: 'bubble_chart', title: 'Inspire' }
-        ],
-        miniVariant: false,
-        right: true,
-        rightDrawer: false,
-        title: 'Need an Umbrella?'
-      }
+export default {
+  data () {
+    return {
+      descriptionVisible: false,
+      umbrellaVisible: false,
+      tileColor: '',
+      umbrella: '',
+      description: '',
+      key: 'apikey=gn5l8vw37h1p5ao6sozdSJ7GlNYBdF30&',
+      city: 'q=chicago&',
+      language: 'language=en-us',
+      locatonURL: 'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?',
+      weatherURL: 'http://dataservice.accuweather.com/forecasts/v1/daily/1day/348308?apikey=gn5l8vw37h1p5ao6sozdSJ7GlNYBdF30&language=en-us&details=false&metric=false',
+      locationKey: '348308' // for Chicago
+    }
+  },
+  methods: {
+    // getLocation () {
+    //   // fetches array of location based on autocomplete input
+    //   fetch(this.locatonURL + this.key + this.city + this.language)
+    //     .then((resp) => resp.json())
+    //     .then(function (data) {
+    //       console.log(data)
+    //       // Your code for handling the data you get from the API
+    //     })
+    //     .catch(function (error) {
+    //       console.log(error)
+    //     })
+    // },
+    getWeather () {
+      let self = this
+      fetch(this.weatherURL)
+        .then((resp) => resp.json())
+        .then(function (data) {
+          self.init()
+          let condition = data.Headline.Category
+          let effectiveTime = data.Headline.EffectiveEpochDate
+          let currentTime = new Date() / 1000
+          if (currentTime >= effectiveTime && condition === 'rain') {
+            self.umbrella = 'Better Grab an Umbrella!'
+            self.description = data.Headline.Text
+            self.umbrellaVisible = true
+            self.descriptionVisible = true
+            self.tileColor = 'red'
+          } else {
+            self.umbrella = 'No Umbrella Today'
+            self.tileColor = 'green'
+            self.umbrellaVisible = true
+          }
+        })
+        .catch(function (error) {
+          console.log(error)
+          alert(error, 'error fetching data')
+        })
+    },
+    init () {
+      this.umbrellaVisible = false
+      this.descriptionVisible = false
     }
   }
+}
 </script>
 
 <style lang="stylus">
