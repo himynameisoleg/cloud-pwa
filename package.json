@@ -11,6 +11,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "jshint": "^2.9.5",
     "vue": "^2.3.3",
     "vuetify": "^0.16.4"
   },
