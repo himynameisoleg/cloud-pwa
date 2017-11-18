@@ -73,7 +73,7 @@ export default {
           let condition = data.Headline.Category
           let effectiveTime = data.Headline.EffectiveEpochDate
           let currentTime = new Date() / 1000
-          if (currentTime >= effectiveTime && condition === 'rain') {
+          if (currentTime >= effectiveTime && (condition === 'rain' || condition === 'thunderstorm')) {
             self.umbrella = 'Better Grab an Umbrella!'
             self.description = data.Headline.Text
             self.umbrellaVisible = true
